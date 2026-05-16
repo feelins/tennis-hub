@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}签表 · 网聚{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2 class="section-title"><span class="accent"></span>动态签表</h2>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <span class="filter-label">赛事：</span>
+    {% for t in tournaments %}
+      <a class="filter-btn {% if current_id == t.id %}active{% endif %}" href="?tour_id={{ t.id }}">{{ t.name }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if bracket.tournament %}
+<div class="match-detail-head" style="background: linear-gradient(135deg, {{ bracket.tournament.banner_color }}20 0%, #FFF7F2 100%);">
+  <div style="display:flex; align-items:center; gap: 16px; flex-wrap: wrap;">
+    <div>
+      <div style="font-size:12px; color: var(--text-3); font-weight:600; letter-spacing:0.08em;">{{ bracket.tournament.name_en }}</div>
+      <h1 style="margin: 4px 0 8px; font-size: 28px;">{{ bracket.tournament.name }}</h1>
+      <div style="display:flex; gap: 6px; flex-wrap: wrap;">
+        {{ m.court_chip(bracket.tournament.court) }}
+        <span class="chip">{{ bracket.tournament.level }}</span>
+        <span class="chip">📍 {{ bracket.tournament.location }}</span>
+        <span class="chip">💰 {{ bracket.tournament.prize }}</span>
+      </div>
+    </div>
+    <div style="margin-left:auto; text-align:right;">
+      <div style="font-size:12px; color: var(--text-3);">赛事日期</div>
+      <div style="font-family: var(--font-mono); font-weight: 700; font-size: 16px;">{{ bracket.tournament.start }} → {{ bracket.tournament.end }}</div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="bracket">
+  <div class="bracket-col">
+    <div class="bracket-col-title">1/4 决赛</div>
+    {% for match in bracket.quarter %}
+      {{ m.bracket_match(match) }}
+    {% endfor %}
+  </div>
+  <div class="bracket-col">
+    <div class="bracket-col-title">半决赛</div>
+    {% for match in bracket.semi %}
+      {{ m.bracket_match(match) }}
+    {% endfor %}
+    {% if not bracket.semi %}<div class="bracket-match" style="text-align:center; color: var(--text-3);">待定</div>{% endif %}
+  </div>
+  <div class="bracket-col">
+    <div class="bracket-col-title">决赛</div>
+    {% for match in bracket.final %}
+      {{ m.bracket_match(match) }}
+    {% endfor %}
+    {% if not bracket.final %}<div class="bracket-match" style="text-align:center; color: var(--text-3);">待定</div>{% endif %}
+  </div>
+</div>
+
+<div style="margin-top: 24px; padding: 16px 20px; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); font-size: 13px; color: var(--text-2);">
+  💡 <strong>动态更新提示</strong>：当 1/4 决赛结束后，获胜方将自动晋级至半决赛对阵；决赛亦然，无需人工维护。
+</div>
+{% endblock %}

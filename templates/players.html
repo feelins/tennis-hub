@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}球员 · 网聚{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2 class="section-title"><span class="accent"></span>球员中心</h2>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <span class="filter-label">巡回赛：</span>
+    <a class="filter-btn {% if tour=='ALL' %}active{% endif %}" href="?tour=ALL">全部</a>
+    <a class="filter-btn {% if tour=='WTA' %}active{% endif %}" href="?tour=WTA">WTA 女子</a>
+    <a class="filter-btn {% if tour=='ATP' %}active{% endif %}" href="?tour=ATP">ATP 男子</a>
+  </div>
+</div>
+
+<div class="grid grid-3">
+  {% for p in players %}
+    <a class="player-card" href="/player/{{ p.id }}">
+      <img class="avatar" src="{{ p.avatar }}" alt="" />
+      <div style="flex:1; min-width:0;">
+        <div style="display:flex; align-items:center; justify-content: space-between; gap: 8px;">
+          <div style="min-width: 0;">
+            <div class="pname">{{ p.flag }} {{ p.name_cn }}</div>
+            <div class="pname-en">{{ p.name_en }}</div>
+          </div>
+          <span class="rank-badge {% if p.current_rank <= 3 %}top{% endif %}">#{{ p.current_rank }}</span>
+        </div>
+        <div style="margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px; color: var(--text-3)">
+          <span>{{ p.tour }}</span>
+          <span>·</span>
+          <span>{{ p.country }}</span>
+          <span>·</span>
+          <span>最高 #{{ p.highest_rank }}</span>
+        </div>
+        <div style="margin-top: 8px;">{{ m.form_pips(p.recent) }}</div>
+      </div>
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}

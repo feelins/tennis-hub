@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ item.title }} · 网聚{% endblock %}
+
+{% block content %}
+<article style="max-width: 820px; margin: 0 auto;">
+  <div style="font-size: 12px; font-weight: 600; color: var(--color-clay-deep); letter-spacing: 0.04em;">{{ item.category }}</div>
+  <h1 style="font-size: 32px; margin: 10px 0 14px; line-height: 1.25; letter-spacing: -0.02em;">{{ item.title }}</h1>
+  <div style="display:flex; gap: 12px; color: var(--text-3); font-size: 13px; margin-bottom: 24px;">
+    <span>{{ item.author }}</span>
+    <span>·</span>
+    <span>{{ item.create_time }}</span>
+  </div>
+  <img src="{{ item.cover }}" alt="" style="width:100%; border-radius: var(--radius); margin-bottom: 24px;" />
+  <p style="font-size: 16px; color: var(--text-2); line-height: 1.85;">{{ item.summary }}</p>
+  <div style="height:1px; background: var(--border); margin: 24px 0;"></div>
+  <div style="font-size: 16px; line-height: 1.85; color: var(--text);">
+    {{ item.content }}
+  </div>
+</article>
+
+<div class="section" style="margin-top: 48px;">
+  <div class="section-header"><h2 class="section-title"><span class="accent"></span>相关推荐</h2></div>
+  <div class="grid grid-3">
+    {% for n in related %}
+      <a class="news-card" href="/news/{{ n.id }}">
+        <img class="news-cover" src="{{ n.cover }}" alt="" loading="lazy" />
+        <div class="news-body">
+          <div class="news-cat">{{ n.category }}</div>
+          <div class="news-title">{{ n.title }}</div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

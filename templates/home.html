@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}首页 · 网聚{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-content">
+    <span class="hero-eyebrow">🎾 红土赛季进行中</span>
+    <h1>网聚 — 网球赛事数据，一站式聚合</h1>
+    <p>WTA / ATP 职业巡回赛实时比分、动态签表、球员档案、排名榜单与深度资讯，为网球爱好者打造的垂直数据平台。</p>
+    <div class="hero-actions">
+      <a href="/draws" class="btn btn-primary">查看罗马签表 →</a>
+      <a href="/schedule" class="btn btn-ghost">今日赛程</a>
+    </div>
+  </div>
+</section>
+
+{% if live_matches %}
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title"><span class="accent" style="background: var(--status-live)"></span>正在进行</h2>
+    <a href="/schedule?status=进行中" class="section-link">查看全部 →</a>
+  </div>
+  <div class="grid grid-2">
+    {% for match in live_matches %}
+      {{ m.match_card(match) }}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title"><span class="accent"></span>今日重点赛程</h2>
+    <a href="/schedule" class="section-link">完整赛程 →</a>
+  </div>
+  <div class="grid grid-2">
+    {% for match in upcoming_matches %}
+      {{ m.match_card(match) }}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title"><span class="accent" style="background: var(--color-clay)"></span>近期大赛</h2>
+    <a href="/draws" class="section-link">动态签表 →</a>
+  </div>
+  <div class="grid grid-4">
+    {% for t in featured_tournaments %}
+      <a class="tour-card" href="/draws?tour_id={{ t.id }}">
+        <div class="tour-banner" style="--banner: {{ t.banner_color }};"></div>
+        <div class="tour-body">
+          <div class="tour-name">{{ t.name }}</div>
+          <div class="tour-meta">{{ t.start }} → {{ t.end }}</div>
+          <div class="tour-info">
+            {{ m.court_chip(t.court) }}
+            <span class="chip">{{ t.level }}</span>
+          </div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title"><span class="accent" style="background: var(--color-ball)"></span>最新资讯</h2>
+    <a href="/news" class="section-link">全部资讯 →</a>
+  </div>
+  <div class="grid grid-3">
+    {% for n in latest_news %}
+      <a class="news-card" href="/news/{{ n.id }}">
+        <img class="news-cover" src="{{ n.cover }}" alt="" loading="lazy" />
+        <div class="news-body">
+          <div class="news-cat">{{ n.category }}</div>
+          <div class="news-title">{{ n.title }}</div>
+          <div class="news-summary">{{ n.summary }}</div>
+          <div class="news-foot">
+            <span>{{ n.author }}</span>
+            <span>{{ n.create_time }}</span>
+          </div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

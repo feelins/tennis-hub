@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}{{ player.name_cn }} · 网聚{% endblock %}
+
+{% block content %}
+<div class="match-detail-head">
+  <div style="display:flex; gap: 24px; align-items:center; flex-wrap: wrap;">
+    <img src="{{ player.avatar }}" alt="" style="width:120px; height:120px; border-radius:50%; box-shadow: var(--shadow-sm); background:white;" />
+    <div style="flex:1; min-width: 260px;">
+      <div style="font-size:12px; color: var(--text-3); font-weight:600; letter-spacing: 0.08em;">{{ player.tour }} · {{ player.country }}</div>
+      <h1 style="font-size: 32px; margin: 4px 0 6px;">{{ player.flag }} {{ player.name_cn }}</h1>
+      <div style="color: var(--text-2); font-size: 15px;">{{ player.name_en }}</div>
+      <div style="display:flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+        <span class="chip">🎂 {{ player.birth }}</span>
+        <span class="chip">✋ {{ player.hand }}</span>
+        <span class="chip">🏆 {{ player.career_title }} 冠</span>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:11px; color: var(--text-3); letter-spacing:0.1em;">当前世界排名</div>
+      <div style="font-family: var(--font-mono); font-size:54px; font-weight:800; color: var(--color-grass-deep); line-height:1;">#{{ player.current_rank }}</div>
+      <div style="font-size:12px; color: var(--text-3); margin-top:6px;">最高 #{{ player.highest_rank }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-3">
+  <div class="match-card">
+    <div style="font-size:12px; color: var(--text-3); font-weight:600;">红土胜率</div>
+    <div style="font-family: var(--font-mono); font-size: 34px; font-weight: 700; color: var(--color-clay-deep); margin-top:4px;">{{ (player.win_clay * 100)|round|int }}%</div>
+    <div style="height:6px; background: var(--color-clay-soft); border-radius:999px; margin-top:10px; overflow:hidden;">
+      <div style="height:100%; width: {{ player.win_clay * 100 }}%; background: var(--color-clay);"></div>
+    </div>
+  </div>
+  <div class="match-card">
+    <div style="font-size:12px; color: var(--text-3); font-weight:600;">硬地胜率</div>
+    <div style="font-family: var(--font-mono); font-size: 34px; font-weight: 700; color: #0277BD; margin-top:4px;">{{ (player.win_hard * 100)|round|int }}%</div>
+    <div style="height:6px; background: var(--color-hard-soft); border-radius:999px; margin-top:10px; overflow:hidden;">
+      <div style="height:100%; width: {{ player.win_hard * 100 }}%; background: var(--color-hard);"></div>
+    </div>
+  </div>
+  <div class="match-card">
+    <div style="font-size:12px; color: var(--text-3); font-weight:600;">草地胜率</div>
+    <div style="font-family: var(--font-mono); font-size: 34px; font-weight: 700; color: var(--color-grass-deep); margin-top:4px;">{{ (player.win_grass * 100)|round|int }}%</div>
+    <div style="height:6px; background: var(--color-grass-soft); border-radius:999px; margin-top:10px; overflow:hidden;">
+      <div style="height:100%; width: {{ player.win_grass * 100 }}%; background: var(--color-grass);"></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 32px;">
+  <div class="section-header">
+    <h2 class="section-title"><span class="accent"></span>近 10 场走势</h2>
+  </div>
+  <div class="match-card" style="padding: 24px;">
+    <div style="display:flex; gap: 12px; align-items:center;">
+      {{ m.form_pips(player.recent) }}
+      <span style="margin-left: auto; font-family: var(--font-mono); font-weight: 600;">
+        {{ player.recent | select('eq', 'W') | list | length }} 胜 / {{ player.recent | select('eq', 'L') | list | length }} 负
+      </span>
+    </div>
+  </div>
+</div>
+
+{% if matches %}
+<div class="section">
+  <div class="section-header">
+    <h2 class="section-title"><span class="accent"></span>相关比赛</h2>
+  </div>
+  <div class="grid grid-2">
+    {% for match in matches %}{{ m.match_card(match) }}{% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}排名 · 网聚{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2 class="section-title"><span class="accent"></span>{{ tour }} 实时世界排名</h2>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <span class="filter-label">榜单：</span>
+    <a class="filter-btn {% if tour=='WTA' %}active{% endif %}" href="?tour=WTA">WTA 女子</a>
+    <a class="filter-btn {% if tour=='ATP' %}active{% endif %}" href="?tour=ATP">ATP 男子</a>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <table class="data">
+    <thead>
+      <tr>
+        <th style="width: 70px">排名</th>
+        <th>球员</th>
+        <th>国籍</th>
+        <th>最高排名</th>
+        <th>冠军</th>
+        <th>近期走势</th>
+        <th class="num" style="text-align:right">红土胜率</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in players %}
+      <tr onclick="window.location='/player/{{ p.id }}'" style="cursor:pointer">
+        <td><span class="rank-badge {% if p.current_rank <= 3 %}top{% endif %}">#{{ p.current_rank }}</span></td>
+        <td>
+          <div style="display:flex; align-items:center; gap: 10px;">
+            <img src="{{ p.avatar }}" alt="" style="width:36px; height:36px; border-radius:50%; background: var(--surface-2)" />
+            <div>
+              <div style="font-weight:600;">{{ p.name_cn }}</div>
+              <div style="font-size:12px; color:var(--text-3);">{{ p.name_en }}</div>
+            </div>
+          </div>
+        </td>
+        <td>{{ p.flag }} {{ p.country }}</td>
+        <td class="num">#{{ p.highest_rank }}</td>
+        <td class="num">{{ p.career_title }}</td>
+        <td>{{ m.form_pips(p.recent) }}</td>
+        <td class="num" style="text-align:right;">{{ (p.win_clay * 100)|round|int }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

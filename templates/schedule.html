@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}赛程 · 网聚{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2 class="section-title"><span class="accent"></span>赛程列表</h2>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <span class="filter-label">赛事：</span>
+    <a class="filter-btn {% if tour=='ALL' %}active{% endif %}" href="?tour=ALL&status={{ status }}">全部</a>
+    <a class="filter-btn {% if tour=='WTA' %}active{% endif %}" href="?tour=WTA&status={{ status }}">WTA</a>
+    <a class="filter-btn {% if tour=='ATP' %}active{% endif %}" href="?tour=ATP&status={{ status }}">ATP</a>
+  </div>
+  <div class="filter-group">
+    <span class="filter-label">状态：</span>
+    <a class="filter-btn {% if status=='ALL' %}active{% endif %}" href="?tour={{ tour }}&status=ALL">全部</a>
+    <a class="filter-btn {% if status=='进行中' %}active{% endif %}" href="?tour={{ tour }}&status=进行中">进行中</a>
+    <a class="filter-btn {% if status=='未开始' %}active{% endif %}" href="?tour={{ tour }}&status=未开始">未开始</a>
+    <a class="filter-btn {% if status=='已结束' %}active{% endif %}" href="?tour={{ tour }}&status=已结束">已结束</a>
+  </div>
+</div>
+
+{% if matches %}
+<div class="grid grid-2">
+  {% for match in matches %}
+    {{ m.match_card(match) }}
+  {% endfor %}
+</div>
+{% else %}
+<div class="table-wrap" style="padding: 60px; text-align:center; color: var(--text-3)">
+  <div style="font-size:38px; margin-bottom:10px">🎾</div>
+  <div>暂无匹配的比赛</div>
+</div>
+{% endif %}
+{% endblock %}

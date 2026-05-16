@@ -1,0 +1,97 @@
+{# Reusable macros for player lines, match cards, etc. #}
+
+{% macro court_chip(court) %}
+  {% if '红土' in court %}<span class="chip clay">🟠 {{ court }}</span>
+  {% elif '草' in court %}<span class="chip grass">🟢 {{ court }}</span>
+  {% elif '硬' in court %}<span class="chip hard">🔵 {{ court }}</span>
+  {% else %}<span class="chip">{{ court }}</span>{% endif %}
+{% endmacro %}
+
+{% macro status_badge(status) %}
+  {% if status == '进行中' %}<span class="badge live">直播中</span>
+  {% elif status == '未开始' %}<span class="badge upcoming">待开赛</span>
+  {% else %}<span class="badge done">已结束</span>{% endif %}
+{% endmacro %}
+
+{% macro match_card(m) %}
+  <a class="match-card {% if m.status=='进行中' %}live{% endif %}" href="/match/{{ m.id }}">
+    <div class="match-head">
+      <span class="match-tour">{{ m.tournament.name }} · {{ m.round }}</span>
+      {{ status_badge(m.status) }}
+    </div>
+    {% set sets = m.score.split('(')[1].rstrip(')').split(',') if '(' in (m.score or '') else [] %}
+    <div class="match-row">
+      <div class="player-line {% if m.winner == m.player1.id %}win{% elif m.winner and m.winner != m.player1.id %}lose{% endif %}">
+        <img class="avatar" src="{{ m.player1.avatar }}" alt="" />
+        <span class="pflag">{{ m.player1.flag }}</span>
+        <span class="pname">{{ m.player1.name_cn }}</span>
+      </div>
+      <div class="score-blocks">
+        {% for s in sets %}
+          {% set parts = s.strip().split('-') %}
+          {% set a = parts[0]|int %} {% set b = parts[1]|int %}
+          <span class="set {% if a > b %}win{% endif %}">{{ a }}</span>
+        {% endfor %}
+        {% if m.status == '进行中' and m.live %}
+          <span class="set cur">{{ m.live.game.split('-')[0] if m.live.game else '-' }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="match-row">
+      <div class="player-line {% if m.winner == m.player2.id %}win{% elif m.winner and m.winner != m.player2.id %}lose{% endif %}">
+        <img class="avatar" src="{{ m.player2.avatar }}" alt="" />
+        <span class="pflag">{{ m.player2.flag }}</span>
+        <span class="pname">{{ m.player2.name_cn }}</span>
+      </div>
+      <div class="score-blocks">
+        {% for s in sets %}
+          {% set parts = s.strip().split('-') %}
+          {% set a = parts[0]|int %} {% set b = parts[1]|int %}
+          <span class="set {% if b > a %}win{% endif %}">{{ b }}</span>
+        {% endfor %}
+        {% if m.status == '进行中' and m.live %}
+          <span class="set cur">{{ m.live.game.split('-')[1] if m.live.game else '-' }}</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="match-head" style="margin-top: 10px; margin-bottom: 0;">
+      <span>🕐 {{ m.start_time }}</span>
+      <span>{{ m.court }}</span>
+    </div>
+  </a>
+{% endmacro %}
+
+{% macro bracket_match(match) %}
+{% if match.player1 or match.player2 %}
+<a class="bracket-match" href="/match/{{ match.id }}">
+  {% set sets = match.score.split('(')[1].rstrip(')').split(',') if '(' in (match.score or '') else [] %}
+  <div class="bracket-line {% if match.winner == match.player1.id %}win{% elif match.winner %}lose{% endif %}">
+    <div class="bracket-name">
+      {% if match.player1 %}<span class="flag">{{ match.player1.flag }}</span><span class="text">{{ match.player1.name_cn }}</span>{% else %}<span class="text muted">待定</span>{% endif %}
+    </div>
+    <div class="bracket-score">
+      {% for s in sets %}{% set p = s.strip().split('-') %}<span {% if p[0]|int > p[1]|int %}style="color:var(--color-grass-deep)"{% endif %}>{{ p[0] }}</span> {% endfor %}
+    </div>
+  </div>
+  <div class="bracket-line {% if match.winner == match.player2.id %}win{% elif match.winner %}lose{% endif %}">
+    <div class="bracket-name">
+      {% if match.player2 %}<span class="flag">{{ match.player2.flag }}</span><span class="text">{{ match.player2.name_cn }}</span>{% else %}<span class="text muted">待定</span>{% endif %}
+    </div>
+    <div class="bracket-score">
+      {% for s in sets %}{% set p = s.strip().split('-') %}<span {% if p[1]|int > p[0]|int %}style="color:var(--color-grass-deep)"{% endif %}>{{ p[1] }}</span> {% endfor %}
+    </div>
+  </div>
+  <div class="bracket-foot">
+    {% if match.status == '进行中' %}<span class="badge live">直播中</span>
+    {% elif match.status == '未开始' %}🕐 {{ match.start_time.split(' ')[1] if ' ' in match.start_time else match.start_time }}
+    {% else %}{{ match.court }}{% endif %}
+  </div>
+</a>
+{% endif %}
+{% endmacro %}
+
+{% macro form_pips(recent) %}
+  <span class="form-pips">
+    {% for ch in recent %}<span class="pip {{ ch }}">{{ ch }}</span>{% endfor %}
+  </span>
+{% endmacro %}

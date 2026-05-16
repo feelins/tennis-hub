@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}资讯 · 网聚{% endblock %}
+
+{% block content %}
+<div class="section-header">
+  <h2 class="section-title"><span class="accent"></span>网球资讯</h2>
+</div>
+
+<div class="filters">
+  <div class="filter-group">
+    <span class="filter-label">分类：</span>
+    {% for c in categories %}
+      <a class="filter-btn {% if category==c %}active{% endif %}" href="?category={{ c }}">{{ '全部' if c=='ALL' else c }}</a>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="grid grid-3">
+  {% for n in news_list %}
+    <a class="news-card" href="/news/{{ n.id }}">
+      <img class="news-cover" src="{{ n.cover }}" alt="" loading="lazy" />
+      <div class="news-body">
+        <div class="news-cat">{{ n.category }}</div>
+        <div class="news-title">{{ n.title }}</div>
+        <div class="news-summary">{{ n.summary }}</div>
+        <div class="news-foot">
+          <span>{{ n.author }}</span>
+          <span>{{ n.create_time }}</span>
+        </div>
+      </div>
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}

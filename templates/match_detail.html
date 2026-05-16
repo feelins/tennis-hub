@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+{% block title %}比赛详情 · 网聚{% endblock %}
+
+{% block content %}
+<a href="javascript:history.back()" class="btn btn-ghost" style="margin-bottom: 16px;">← 返回</a>
+
+<div class="match-detail-head">
+  <div style="display:flex; justify-content: space-between; align-items:center; flex-wrap: wrap; gap: 12px;">
+    <div>
+      <div style="font-size:12px; color: var(--text-3); font-weight: 600; letter-spacing: 0.08em;">{{ match.tournament.name_en }} · {{ match.round }}</div>
+      <h1 style="font-size: 24px; margin: 4px 0 8px;">{{ match.tournament.name }}</h1>
+      <div style="display:flex; gap: 6px; flex-wrap: wrap;">
+        {{ m.court_chip(match.tournament.court) }}
+        <span class="chip">📍 {{ match.court }}</span>
+        <span class="chip">🕐 {{ match.start_time }}</span>
+      </div>
+    </div>
+    {{ m.status_badge(match.status) }}
+  </div>
+
+  <div class="score-board">
+    <div class="score-player">
+      <img class="avatar" src="{{ match.player1.avatar }}" alt="" />
+      <div class="pname">{{ match.player1.flag }} {{ match.player1.name_cn }}</div>
+      <div class="pcountry">{{ match.player1.name_en }} · #{{ match.player1.current_rank }}</div>
+    </div>
+    <div class="score-vs">
+      {% if match.score %}
+        <div class="live-score" id="js-score">{{ match.score }}</div>
+      {% else %}
+        <div class="vs">VS</div>
+      {% endif %}
+      {% if match.status == '进行中' and match.live %}
+        <div style="font-size:13px; color: var(--text-2); font-family: var(--font-mono);">当前局：<strong id="js-game">{{ match.live.game }}</strong></div>
+      {% endif %}
+    </div>
+    <div class="score-player">
+      <img class="avatar" src="{{ match.player2.avatar }}" alt="" />
+      <div class="pname">{{ match.player2.flag }} {{ match.player2.name_cn }}</div>
+      <div class="pcountry">{{ match.player2.name_en }} · #{{ match.player2.current_rank }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-tab="live">文字直播</button>
+  <button class="tab" data-tab="stats">技术统计</button>
+  <button class="tab" data-tab="h2h">交手记录</button>
+</div>
+
+<div class="tab-panel active" id="tab-live">
+  <ul class="comm-list">
+    {% for c in commentary %}
+    <li class="comm-item">
+      <span class="comm-time">{{ c.time }}</span>
+      <span class="comm-text">{{ c.text }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="tab-panel" id="tab-stats">
+  <div class="match-card">
+    {% for label, pair in [('一发进球率 %', stats.first_serve_pct), ('一发得分率 %', stats.first_serve_win), ('二发得分率 %', stats.second_serve_win), ('ACE', stats.aces), ('双误', stats.double_faults), ('总得分', stats.total_points)] %}
+    <div class="stat-row">
+      <span class="val l">{{ pair[0] }}</span>
+      <div style="display:flex; flex-direction:column; gap: 6px;">
+        <span class="label">{{ label }}</span>
+        {% set total = (pair[0] + pair[1]) if (pair[0] + pair[1]) > 0 else 1 %}
+        <div class="stat-bar">
+          <div class="l-bar" style="width: {{ (pair[0] / total * 100)|round|int }}%"></div>
+          <div class="r-bar" style="width: {{ (pair[1] / total * 100)|round|int }}%"></div>
+        </div>
+      </div>
+      <span class="val r">{{ pair[1] }}</span>
+    </div>
+    {% endfor %}
+    <div class="stat-row">
+      <span class="val l">{{ stats.break_points[0] }}</span>
+      <div><span class="label">破发点 (成功/总计)</span></div>
+      <span class="val r">{{ stats.break_points[1] }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="tab-panel" id="tab-h2h">
+  <div class="match-card" style="padding: 32px; text-align:center;">
+    <div style="font-size:13px; color: var(--text-3); letter-spacing: 0.1em;">历史交手</div>
+    <div style="display:flex; justify-content:space-around; align-items:center; margin: 20px 0;">
+      <div style="text-align:center;">
+        <div style="font-weight:600;">{{ match.player1.name_cn }}</div>
+        <div style="font-family: var(--font-mono); font-size: 48px; font-weight: 800; color: var(--color-grass-deep);">3</div>
+      </div>
+      <div style="font-size: 20px; color: var(--text-3); font-family: var(--font-mono);">:</div>
+      <div style="text-align:center;">
+        <div style="font-weight:600;">{{ match.player2.name_cn }}</div>
+        <div style="font-family: var(--font-mono); font-size: 48px; font-weight: 800; color: var(--color-clay-deep);">2</div>
+      </div>
+    </div>
+    <div style="color: var(--text-2); font-size:13px;">近 5 次交手：红土 2 胜 1 负，硬地 1 胜 1 负</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(x => x.classList.remove('active'));
+      t.classList.add('active');
+      document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+    });
+  });
+
+  {% if match.status == '进行中' %}
+  // poll live score
+  setInterval(async () => {
+    try {
+      const r = await fetch('/api/live');
+      const data = await r.json();
+      const m = data.matches.find(x => x.id === {{ match.id }});
+      if (m) {
+        document.getElementById('js-score') && (document.getElementById('js-score').textContent = m.score || '');
+        document.getElementById('js-game') && m.live && (document.getElementById('js-game').textContent = m.live.game || '');
+      }
+    } catch (e) {}
+  }, 5000);
+  {% endif %}
+</script>
+{% endblock %}
